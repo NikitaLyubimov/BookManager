@@ -13,7 +13,9 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace BookManager
+using BookManager.ViewModels;
+
+namespace BookManager.Views
 {
     /// <summary>
     /// Логика взаимодействия для MainWindow.xaml
@@ -23,6 +25,8 @@ namespace BookManager
         public MainWindow()
         {
             InitializeComponent();
+            this.DataContext = new MainWindowViewModel();
+            
         }
     }
 }
