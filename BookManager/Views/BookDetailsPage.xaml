@@ -1,0 +1,48 @@
+﻿<Page x:Class="BookManager.Views.BookDetailsPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:BookManager.Views"
+      mc:Ignorable="d" 
+      d:DesignHeight="300" d:DesignWidth="750"
+      Title="BookDetailsPage">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Text="{Binding Title, FallbackValue=Title}" FontSize="20" VerticalAlignment="Center" FontWeight="Bold"/>
+
+        <StackPanel Grid.Row="1">
+            <Button Width="100" Background="Transparent" HorizontalAlignment="Left" BorderThickness="0">
+                <TextBlock Foreground="LightBlue">
+                    <Run Text="by "/>
+                    <Run Text="{Binding Author, FallbackValue=Author}"/>
+                </TextBlock>
+            </Button>
+
+            <TextBlock>
+                <Run Text="First published: "/>
+                <Run Text="{Binding FirstPublished, FallbackValue=2016}"/>
+            </TextBlock>
+        </StackPanel>
+
+        <StackPanel Grid.Row="2">
+            <TextBlock Text="Description" FontWeight="Bold"/>
+
+            <ScrollViewer>
+                <TextBlock Text="{Binding Description, FallbackValue=Description}" FontSize="10"/>
+            </ScrollViewer>
+        </StackPanel>
+
+        <StackPanel Grid.Row="3">
+            <TextBlock Text="Subjects" FontWeight="Bold"/>
+            <TextBlock Text="{Binding Subjects, FallbackValue=Subjects}" FontSize="10"/>
+        </StackPanel>
+    </Grid>
+</Page>
