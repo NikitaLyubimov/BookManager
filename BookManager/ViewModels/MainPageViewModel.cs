@@ -5,6 +5,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+
+
 using BookManager.Models;
 
 namespace BookManager.ViewModels
@@ -17,8 +19,17 @@ namespace BookManager.ViewModels
         private string _subject;
         private RelayCommand _searchCommand;
         private ObservableCollection<Book> _bookList;
+        private BookManagerDbEntities _dbContext;
         #endregion
 
+        #region Constructor
+
+        public MainPageViewModel()
+        {
+            _dbContext = new BookManagerDbEntities();
+        }
+
+        #endregion
         #region Public fields
         public string Title
         {
@@ -51,7 +62,11 @@ namespace BookManager.ViewModels
                 MessageBox.Show("At least one field should be entered");
             else
             {
+                if (string.IsNullOrEmpty(Author) && string.IsNullOrEmpty(Subject))
 
+                    BookList = new ObservableCollection<Book>(_dbContext.Book.Where(x => x.Title.Contains(Title)).ToList());
+                else if (string.IsNullOrEmpty(Subject))
+                    BookList = new ObservableCollection<Book>(_dbContext.Book.Where(x => x.Title.Contains(Title) && x.).ToList());
             }
         }
 

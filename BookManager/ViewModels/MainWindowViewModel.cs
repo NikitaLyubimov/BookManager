@@ -20,13 +20,13 @@ namespace BookManager.ViewModels
 
         private void GoToHelloScreen(object obj)
         {
-            ChangeViewModel(new MainPageViewModel());
+            ChangeViewModel((BaseViewModel)obj);
         }
 
         public MainWindowViewModel()
         {
-            MediatorMain.Subscribe("GoToHScreen", GoToHelloScreen);
-            MediatorMain.Notify("GoToHScreen", "");
+            MediatorMain.Subscribe("Navigate", GoToHelloScreen);
+            MediatorMain.Notify("Navigate", new MainPageViewModel());
         }
     }
 }
