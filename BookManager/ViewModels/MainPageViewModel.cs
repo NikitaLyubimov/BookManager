@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
@@ -17,8 +15,16 @@ namespace BookManager.ViewModels
         private string _author;
         private string _subject;
         private string _buttonContent;
+        private bool _isSearchEnabled;
+        private bool _isLeftBookEnabled;
+        private bool _isRightBookEnabled;
+        private int _startIndex;
+
         private AsyncCommand _searchCommand;
+        private AsyncCommand _rightBookCommand;
+        private AsyncCommand _leftBookCommand;
         private List<BookAuthor> _bookList;
+        private List<BookAuthor> _fiftyBookList;
         private BookManagerDbEntities _dbContext;
         #endregion
 
@@ -27,12 +33,18 @@ namespace BookManager.ViewModels
         public MainPageViewModel()
         {
             _dbContext = new BookManagerDbEntities();
+            _startIndex = 0;
 
-            BookList = _dbContext.BookAuthor.ToList();
+            _bookList = _dbContext.BookAuthor.ToList();
+            SetBookRightList();
             ButtonContent = "Search";
+            IsSearchEnabled = true;
+
+            
         }
 
         #endregion
+
         #region Public fields
         /// <summary>
         /// Field fore searching book
@@ -64,10 +76,10 @@ namespace BookManager.ViewModels
         /// <summary>
         /// List with books 
         /// </summary>
-        public List<BookAuthor> BookList
+        public List<BookAuthor> FiftyBookList
         {
-            get { return _bookList; }
-            set { SetProperty(ref _bookList, value); }
+            get { return _fiftyBookList; }
+            set { SetProperty(ref _fiftyBookList, value); }
         }
 
         /// <summary>
@@ -77,6 +89,33 @@ namespace BookManager.ViewModels
         {
             get { return _buttonContent; }
             set { SetProperty(ref _buttonContent, value); }
+        }
+
+        /// <summary>
+        /// Is search button enabled
+        /// </summary>
+        public bool IsSearchEnabled
+        {
+            get{ return _isSearchEnabled; }
+            set { SetProperty(ref _isSearchEnabled, value); }
+        }
+
+        /// <summary>
+        /// Is left button for sliding books is enabled
+        /// </summary>
+        public bool IsRightBookEnabled
+        {
+            get { return _isRightBookEnabled; }
+            set { SetProperty(ref _isRightBookEnabled, value); }
+        }
+
+        /// <summary>
+        /// Is right button for sliding books is enabled
+        /// </summary>
+        public bool IsLeftBookEnabled
+        {
+            get { return _isLeftBookEnabled; }
+            set { SetProperty(ref _isLeftBookEnabled, value); }
         }
 
         /// <summary>
@@ -91,8 +130,36 @@ namespace BookManager.ViewModels
                 return _searchCommand;
             }
         }
+
+        /// <summary>
+        /// Command for sliding to the right
+        /// </summary>
+        public ICommand RightBookCommand
+        {
+            get
+            {
+                if (_rightBookCommand == null)
+                    _rightBookCommand = new AsyncCommand(RightBooks);
+                return _rightBookCommand;
+            }
+        }
+
+        /// <summary>
+        /// Command for sliding to the left
+        /// </summary>
+        public ICommand LeftBookCommand
+        {
+            get
+            {
+                if (_leftBookCommand == null)
+                    _leftBookCommand = new AsyncCommand(LeftBooks);
+
+                return _leftBookCommand;
+            }
+        }
         #endregion
 
+        #region Click Methods
         /// <summary>
         /// Method which search books depending on user request
         /// </summary>
@@ -105,21 +172,131 @@ namespace BookManager.ViewModels
                 try
                 {
                     ButtonContent = "Loading...";
+                    IsSearchEnabled = false;
 
-                    await Task.Factory.StartNew(() => BookList = SearchBooksTools.Search(Title, Author, Subject));
+                    await Task.Factory.StartNew(() => 
+                    {
+                        _bookList = SearchBooksTools.Search(Title, Author, Subject);
+                        _startIndex = 0;
+                        SetBookRightList();
+                    });
                    
                 }
                 finally
                 {
                     ButtonContent = "Search";
+                    IsSearchEnabled = true;
                 }
-
 
             }
         }
 
+        /// <summary>
+        /// Invokes when you click on left arrow
+        /// </summary>
+        /// <returns></returns>
+        private async Task LeftBooks()
+        {
+            await Task.Factory.StartNew(() =>
+            {
+                SetBookLeftList();
+            });
+        }
+
+        /// <summary>
+        /// Invokes when you click on right arrow
+        /// </summary>
+        /// <returns></returns>
+        private async Task RightBooks()
+        {
+            try
+            {
+                await Task.Factory.StartNew(() =>
+                {
+
+                    SetBookRightList();
+                });
+            }
+            catch (IndexOutOfRangeException exc)
+            {
+                await Task.Factory.StartNew(() => FiftyBookList = _bookList.GetRange(_startIndex, _bookList.Count - FiftyBookList.Count));
+            }
+        }
+
+        #endregion
 
 
+        /// <summary>
+        /// Sets books while you sliding to the right
+        /// </summary>
+        private void SetBookRightList()
+        {
+            if (_bookList.Count > 50)
+            {
+                if(_startIndex + 50 > _bookList.Count)
+                {
+                    FiftyBookList = _bookList.GetRange(_startIndex, _bookList.Count - _startIndex);
+                    SetButtons();
+                }
+                else if(_startIndex == 0)
+                {
+                    
+                    FiftyBookList = _bookList.GetRange(_startIndex, 50);
+                    SetButtons();
+                    _startIndex += 50;
+                }
+                else
+                {
+                    _startIndex = _startIndex == 0 ? _startIndex += 50 : _startIndex;
+                    
+                    FiftyBookList = _bookList.GetRange(_startIndex, 50);
+                    _startIndex += 50;
+                    SetButtons();
+                }
+
+            }
+            else
+            {
+                FiftyBookList = _bookList;
+                SetButtons();
+            }
+                
+        }
+
+        /// <summary>
+        /// Sets books while you sliding to the left
+        /// </summary>
+        private void SetBookLeftList()
+        {
+            if(_startIndex - 100 < 0)
+            {
+                _startIndex -= 50;
+                
+                FiftyBookList = _bookList.GetRange(_startIndex, 50);
+                SetButtons();
+
+                _startIndex = _startIndex == 0 ? _startIndex += 50 : _startIndex;
+            }
+            else
+            {
+                _startIndex -= 100;
+
+                FiftyBookList = _bookList.GetRange(_startIndex, 50);
+                SetButtons();
+
+                _startIndex = _startIndex == 0 ? _startIndex += 50 : _startIndex;
+
+            }
+        }
+
+        /// <summary>
+        /// Enable or disable buttons
+        /// </summary>
+        private void SetButtons()
+        {
+            IsRightBookEnabled = _startIndex + 50 > _bookList.Count || _startIndex == _bookList.Count ? false : true;
+            IsLeftBookEnabled = _startIndex - 50 < 0 ? false : true;
+        }
 
     }
 }
