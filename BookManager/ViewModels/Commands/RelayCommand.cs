@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
+
 namespace BookManager.ViewModels
 {
     class RelayCommand : ICommand

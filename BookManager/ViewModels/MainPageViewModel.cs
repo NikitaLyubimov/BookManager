@@ -16,7 +16,8 @@ namespace BookManager.ViewModels
         private string _title;
         private string _author;
         private string _subject;
-        private RelayCommand _searchCommand;
+        private string _buttonContent;
+        private AsyncCommand _searchCommand;
         private List<BookAuthor> _bookList;
         private BookManagerDbEntities _dbContext;
         #endregion
@@ -28,6 +29,7 @@ namespace BookManager.ViewModels
             _dbContext = new BookManagerDbEntities();
 
             BookList = _dbContext.BookAuthor.ToList();
+            ButtonContent = "Search";
         }
 
         #endregion
@@ -69,6 +71,15 @@ namespace BookManager.ViewModels
         }
 
         /// <summary>
+        /// Button content, which changes from 'Search' to 'Loading... while loading request data
+        /// </summary>
+        public string ButtonContent
+        {
+            get { return _buttonContent; }
+            set { SetProperty(ref _buttonContent, value); }
+        }
+
+        /// <summary>
         /// Command for searching
         /// </summary>
         public ICommand SearchCommand
@@ -76,7 +87,7 @@ namespace BookManager.ViewModels
             get
             {
                 if (_searchCommand == null)
-                    _searchCommand = new RelayCommand(Search);
+                    _searchCommand = new AsyncCommand(Search);
                 return _searchCommand;
             }
         }
@@ -85,35 +96,22 @@ namespace BookManager.ViewModels
         /// <summary>
         /// Method which search books depending on user request
         /// </summary>
-        private void Search()
+        private async Task Search()
         {
             if (string.IsNullOrEmpty(Title) && string.IsNullOrEmpty(Author) && string.IsNullOrEmpty(Subject))
                 MessageBox.Show("At least one field should be entered");
             else
             {
-                if (string.IsNullOrEmpty(Author) && string.IsNullOrEmpty(Subject) && !string.IsNullOrEmpty(Title))
-                    BookList = _dbContext.BookAuthor.Where(x => x.Book.Title.Contains(Title)).ToList();
+                try
+                {
+                    ButtonContent = "Loading...";
 
-                else if (string.IsNullOrEmpty(Subject) && !string.IsNullOrEmpty(Author) && !string.IsNullOrEmpty(Title))
-                    BookList = _dbContext.BookAuthor.Where(x => x.Book.Title.Contains(Title) && x.Author.Name.Contains(Author)).ToList();
-                else if (!string.IsNullOrEmpty(Title) && !string.IsNullOrEmpty(Subject) && string.IsNullOrEmpty(Author))
-                {
-                    BookList = _dbContext.BookSubject.Where(x => x.Book.Title.Contains(Title) && x.Subject.Contains(Subject))
-                        .Select(x => x.Book)
-                        .Select(x => x.BookAuthor) as List<BookAuthor>;
+                    await Task.Factory.StartNew(() => BookList = SearchBooksTools.Search(Title, Author, Subject));
+                   
                 }
-                else if (!string.IsNullOrEmpty(Title) && !string.IsNullOrEmpty(Subject) && !string.IsNullOrEmpty(Author))
+                finally
                 {
-                    BookList = _dbContext.BookSubject.Where(x => x.Book.Title.Contains(Title) && x.Subject.Contains(Subject)
-                    && x.Book.BookAuthor.FirstOrDefault(y => y.Author.Name.Contains(Author)) != null)
-                        .Select(x => x.Book)
-                        .Select(x => x.BookAuthor) as List<BookAuthor>;
-                }
-                else if (!string.IsNullOrEmpty(Author) && !string.IsNullOrEmpty(Subject) && string.IsNullOrEmpty(Title))
-                {
-                    BookList = _dbContext.BookSubject.Where(x => x.Book.BookAuthor.FirstOrDefault(y => y.Author.Name.Contains(Author)) != null && x.Subject.Contains(Subject))
-                        .Select(x => x.Book)
-                        .Select(x => x.BookAuthor) as List<BookAuthor>;
+                    ButtonContent = "Search";
                 }
 
 
