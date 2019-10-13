@@ -11,21 +11,21 @@ namespace BookManager.ViewModels
     class MainWindowViewModel : BaseViewModel
     {
         private BaseViewModel _currentPageViewModel;
-        public BaseViewModel CurrentPageViewModel { get { return _currentPageViewModel; }}
+        public BaseViewModel CurrentPageViewModel { get { return _currentPageViewModel; } }
 
         private void ChangeViewModel(BaseViewModel viewModel)
         {
             SetProperty(ref _currentPageViewModel, viewModel);
         }
 
-        private void GoToHelloScreen(object obj)
+        private void Navigate(object obj)
         {
             ChangeViewModel((BaseViewModel)obj);
         }
 
         public MainWindowViewModel()
         {
-            MediatorMain.Subscribe("Navigate", GoToHelloScreen);
+            MediatorMain.Subscribe("Navigate", Navigate);
             MediatorMain.Notify("Navigate", new MainPageViewModel());
         }
     }

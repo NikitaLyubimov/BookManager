@@ -13,6 +13,9 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
+using BookManager.ViewModels;
+using BookManager.Models;
+
 namespace BookManager.Views
 {
     /// <summary>
@@ -23,6 +26,7 @@ namespace BookManager.Views
         public BookDetailsPage()
         {
             InitializeComponent();
+
         }
     }
 }

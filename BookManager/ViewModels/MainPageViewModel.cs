@@ -1,10 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
+
+using BookManager.Mediator;
 using BookManager.Models;
+using BookManager.Views;
 
 namespace BookManager.ViewModels
 {
@@ -19,6 +24,9 @@ namespace BookManager.ViewModels
         private bool _isLeftBookEnabled;
         private bool _isRightBookEnabled;
         private int _startIndex;
+        private int _pagesAmount;
+        private int _pageIndex;
+        private int _booksFound;
 
         private AsyncCommand _searchCommand;
         private AsyncCommand _rightBookCommand;
@@ -26,6 +34,8 @@ namespace BookManager.ViewModels
         private List<BookAuthor> _bookList;
         private List<BookAuthor> _fiftyBookList;
         private BookManagerDbEntities _dbContext;
+        private BookAuthor _selectedItem;
+        private BaseViewModel _currentBookViewModel;
         #endregion
 
         #region Constructor
@@ -36,11 +46,10 @@ namespace BookManager.ViewModels
             _startIndex = 0;
 
             _bookList = _dbContext.BookAuthor.ToList();
+            SetPageInfo();
             SetBookRightList();
             ButtonContent = "Search";
             IsSearchEnabled = true;
-
-            
         }
 
         #endregion
@@ -119,6 +128,58 @@ namespace BookManager.ViewModels
         }
 
         /// <summary>
+        /// Amount of pages with books
+        /// </summary>
+        public int PagesAmount
+        {
+            get { return _pagesAmount; }
+            set { SetProperty(ref _pagesAmount, value); }
+        }
+
+        /// <summary>
+        /// Index of current page
+        /// </summary>
+        public int PageIndex
+        {
+            get { return _pageIndex; }
+            set { SetProperty(ref _pageIndex, value); }
+        }
+
+        /// <summary>
+        /// Amount of found books
+        /// </summary>
+        public int BooksFound
+        {
+            get { return _booksFound; }
+            set { SetProperty(ref _booksFound, value); }
+        }
+
+        /// <summary>
+        /// DataGrid selected book
+        /// </summary>
+        public BookAuthor SelectedItem
+        {
+            get { return _selectedItem; }
+            set
+            {
+                _selectedItem = value;
+                OnSelectedItemChanged();
+            }
+        }
+
+        /// <summary>
+        /// View modle of selected datagrid book
+        /// </summary>
+        public BaseViewModel CurrentBookViewModel
+        {
+            get { return _currentBookViewModel; }
+            set
+            {
+                SetProperty(ref _currentBookViewModel, value);
+            }
+        }
+
+        /// <summary>
         /// Command for searching
         /// </summary>
         public ICommand SearchCommand
@@ -130,6 +191,8 @@ namespace BookManager.ViewModels
                 return _searchCommand;
             }
         }
+
+
 
         /// <summary>
         /// Command for sliding to the right
@@ -178,6 +241,8 @@ namespace BookManager.ViewModels
                     {
                         _bookList = SearchBooksTools.Search(Title, Author, Subject);
                         _startIndex = 0;
+
+                        SetPageInfo();
                         SetBookRightList();
                     });
                    
@@ -231,27 +296,29 @@ namespace BookManager.ViewModels
         /// </summary>
         private void SetBookRightList()
         {
+            PageIndex += 1;
             if (_bookList.Count > 50)
             {
                 if(_startIndex + 50 > _bookList.Count)
                 {
+                    
                     FiftyBookList = _bookList.GetRange(_startIndex, _bookList.Count - _startIndex);
                     SetButtons();
                 }
-                else if(_startIndex == 0)
+                else if (_startIndex == 0)
                 {
-                    
+
                     FiftyBookList = _bookList.GetRange(_startIndex, 50);
                     SetButtons();
                     _startIndex += 50;
                 }
                 else
-                {
-                    _startIndex = _startIndex == 0 ? _startIndex += 50 : _startIndex;
-                    
+                {  
                     FiftyBookList = _bookList.GetRange(_startIndex, 50);
                     _startIndex += 50;
                     SetButtons();
+                   // _startIndex = _startIndex == 0 ? _startIndex += 50 : _startIndex;
+                   // _startIndex += 50;
                 }
 
             }
@@ -271,13 +338,13 @@ namespace BookManager.ViewModels
             if(_startIndex - 100 < 0)
             {
                 _startIndex -= 50;
-                
+
                 FiftyBookList = _bookList.GetRange(_startIndex, 50);
                 SetButtons();
 
                 _startIndex = _startIndex == 0 ? _startIndex += 50 : _startIndex;
             }
-            else
+            else if(PageIndex * 50 == _startIndex)
             {
                 _startIndex -= 100;
 
@@ -285,8 +352,18 @@ namespace BookManager.ViewModels
                 SetButtons();
 
                 _startIndex = _startIndex == 0 ? _startIndex += 50 : _startIndex;
-
             }
+            else
+            {
+                _startIndex -= 50;
+                FiftyBookList = _bookList.GetRange(_startIndex, 50);
+                SetButtons();
+
+                _startIndex = _startIndex == 0 ? _startIndex += 50 : _startIndex;
+            }
+            PageIndex -= 1;
+            
+
         }
 
         /// <summary>
@@ -297,6 +374,35 @@ namespace BookManager.ViewModels
             IsRightBookEnabled = _startIndex + 50 > _bookList.Count || _startIndex == _bookList.Count ? false : true;
             IsLeftBookEnabled = _startIndex - 50 < 0 ? false : true;
         }
+
+        private void SetPageInfo()
+        {
+            PageIndex = 0;
+            PagesAmount = _bookList.Count / 50;
+            BooksFound = _bookList.Count;
+        }
+
+        #region Property changed for selected datagrid item
+
+        public event PropertyChangedEventHandler SelectedItemPropertyChanged;
+
+        protected virtual void OnSelectedItemChanged()
+        {
+            SelectedItemPropertyChanged?.Invoke(this, new PropertyChangedEventArgs("SelectedItem"));
+
+            CurrentBookViewModel = new BookDetailsViewModel(SelectedItem);
+        }
+
+        public event PropertyChangedEventHandler BookVmPropertyChanged;
+
+        protected virtual void OnBookVmChanged()
+        {
+            BookVmPropertyChanged?.Invoke(this, new PropertyChangedEventArgs("CurrentBookViewModel"));
+
+        }
+
+        #endregion
+
 
     }
 }

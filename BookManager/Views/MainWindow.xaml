@@ -28,6 +28,6 @@
             </MenuItem>
         </Menu>
 
-        <Frame Grid.Row="1" Content="{Binding CurrentPageViewModel, Converter={StaticResource VMConverter}}"/>
+        <Frame Grid.Row="1" Content="{Binding CurrentPageViewModel, Converter={StaticResource VMConverter}}" NavigationUIVisibility="Hidden"/>
     </Grid>
 </Window>

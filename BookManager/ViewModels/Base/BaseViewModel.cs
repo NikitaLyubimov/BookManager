@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace BookManager.ViewModels
 {
-    class BaseViewModel : INotifyPropertyChanged
+    public class BaseViewModel : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
