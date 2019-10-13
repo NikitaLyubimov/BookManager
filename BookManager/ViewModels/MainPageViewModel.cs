@@ -392,15 +392,6 @@ namespace BookManager.ViewModels
 
             CurrentBookViewModel = new BookDetailsViewModel(SelectedItem);
         }
-
-        public event PropertyChangedEventHandler BookVmPropertyChanged;
-
-        protected virtual void OnBookVmChanged()
-        {
-            BookVmPropertyChanged?.Invoke(this, new PropertyChangedEventArgs("CurrentBookViewModel"));
-
-        }
-
         #endregion
 
 
