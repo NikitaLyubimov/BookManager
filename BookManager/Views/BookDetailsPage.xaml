@@ -16,7 +16,7 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <TextBlock Text="{Binding Title, FallbackValue=Title}" FontSize="20" VerticalAlignment="Center" FontWeight="Bold"/>
+        <TextBlock TextWrapping="Wrap" Text="{Binding Title, FallbackValue=Title}" FontSize="20" VerticalAlignment="Center" FontWeight="Bold"/>
 
         <StackPanel Grid.Row="1">
             <Button Width="100" Background="Transparent" HorizontalAlignment="Left" BorderThickness="0">
