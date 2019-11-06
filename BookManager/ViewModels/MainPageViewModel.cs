@@ -390,7 +390,9 @@ namespace BookManager.ViewModels
         {
             SelectedItemPropertyChanged?.Invoke(this, new PropertyChangedEventArgs("SelectedItem"));
 
-            CurrentBookViewModel = new BookDetailsViewModel(SelectedItem);
+            List<BookAuthor> books = _dbContext.BookAuthor.Where(x => x.BookKey == SelectedItem.BookKey).ToList();
+
+            CurrentBookViewModel = new BookDetailsViewModel(books);
         }
         #endregion
 

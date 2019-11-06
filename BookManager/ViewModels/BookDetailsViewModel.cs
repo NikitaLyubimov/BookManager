@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Input;
 
+using BookManager.Views;
 using BookManager.Models;
 
 namespace BookManager.ViewModels
@@ -11,14 +13,16 @@ namespace BookManager.ViewModels
     class BookDetailsViewModel : BaseViewModel
     {
         #region Private fields
-
-        private BookAuthor _book;
+        
+        private List<BookAuthor> _books;
 
         private string _title;
         private string _autor;
         private string _firstPublished;
         private string _description;
         private string _subjects;
+
+        private RelayCommand _authorCommand;
 
         #endregion
 
@@ -72,25 +76,47 @@ namespace BookManager.ViewModels
         #endregion
 
         #region Constructor
-        public BookDetailsViewModel(BookAuthor book)
+        public BookDetailsViewModel(List<BookAuthor> books)
         {
-            _book = book;
+            _books = books;
             Subjects = string.Empty;
             SetInfo();
         }
+
+        public ICommand AuthorCommand
+        {
+
+            get
+            {
+                if (_authorCommand == null)
+                    _authorCommand = new RelayCommand(AuthorAction);
+
+                return _authorCommand;
+            }
+        }
         #endregion
 
+        private void AuthorAction()
+        {
+            AuthorDetailsWindow authorDetails = new AuthorDetailsWindow(_books);
+            authorDetails.ShowDialog();
+        }
 
         #region Help methods
 
         private void SetInfo()
         {
-            Title = _book.Book.Title;
-            Author = _book.Author.Name;
-            FirstPublished = _book.Book.FirstPublishDate;
-            Description = _book.Book.Description;
 
-            foreach(BookSubject subject in _book.Book.BookSubject)
+            if (_books.Count() > 1)
+                Author = "More about authors";
+            else
+                Author = _books[0].Author.Name;
+
+            Title = _books[0].Book.Title;
+            FirstPublished = _books[0].Book.FirstPublishDate;
+            Description = _books[0].Book.Description;
+
+            foreach(BookSubject subject in _books[0].Book.BookSubject)
             {
                 Subjects += $"{subject.Subject}, ";  
             }

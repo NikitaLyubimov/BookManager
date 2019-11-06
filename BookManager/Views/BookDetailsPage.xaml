@@ -19,7 +19,7 @@
         <TextBlock TextWrapping="Wrap" Text="{Binding Title, FallbackValue=Title}" FontSize="20" VerticalAlignment="Center" FontWeight="Bold"/>
 
         <StackPanel Grid.Row="1">
-            <Button Width="100" Background="Transparent" HorizontalAlignment="Left" BorderThickness="0">
+            <Button Command="{Binding AuthorCommand}" Width="100" Background="Transparent" HorizontalAlignment="Left" BorderThickness="0">
                 <TextBlock Foreground="LightBlue">
                     <Run Text="by "/>
                     <Run Text="{Binding Author, FallbackValue=Author}"/>
@@ -36,7 +36,7 @@
             <TextBlock Text="Description" FontWeight="Bold"/>
 
             <ScrollViewer>
-                <TextBlock Text="{Binding Description, FallbackValue=Description}" FontSize="10"/>
+                <TextBlock Text="{Binding Description, FallbackValue=Description}" FontSize="10" TextWrapping="Wrap"/>
             </ScrollViewer>
         </StackPanel>
 
