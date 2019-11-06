@@ -69,7 +69,7 @@
                 <DataGrid SelectedItem="{Binding SelectedItem}" ItemsSource="{Binding FiftyBookList}" AutoGenerateColumns="False" Margin="5" ColumnWidth="*">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Title" Binding="{Binding Book.Title}"/>
-                        <DataGridTextColumn Header="Authors" Binding="{Binding Author.Name}"/>
+                        <DataGridTextColumn Header="Authors" Binding="{Binding AuthorName}"/>
                     </DataGrid.Columns>
 
                 </DataGrid>

@@ -91,6 +91,7 @@
     <Compile Include="Models\BookAuthor.cs">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\BookAuthorPartial.cs" />
     <Compile Include="Models\BookCover.cs">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
