@@ -5,6 +5,6 @@ A College book manager project with simple interface. It allows watch all books 
 
 **Plans**
 - [x]  Impelemet getting book info by clicking on book in list
-- [ ]  Implemet getting author info when click on autor
+- [x]  Implemet getting author info when click on autor
 - [ ]  Implement login window and admin panel
 
